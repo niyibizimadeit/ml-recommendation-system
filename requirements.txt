@@ -1,25 +1,14 @@
-cat > requirements.txt << 'EOF'
-# Core ML
-lightfm==1.17
+implicit>=0.7.2
 scikit-learn>=1.3
 numpy>=1.24
 scipy>=1.11
 pandas>=2.0
-
-# Data & storage
 sqlalchemy>=2.0
 python-dotenv>=1.0
-
-# API (for serving recommendations later)
 fastapi>=0.104
 uvicorn>=0.24
-
-# Evaluation & notebooks
 jupyter>=1.0
 matplotlib>=3.7
 seaborn>=0.12
-
-# Utilities
 tqdm>=4.65
 pyyaml>=6.0
-EOF
