@@ -45,7 +45,7 @@ def init_db():
             CREATE INDEX IF NOT EXISTS idx_product 
             ON interactions(product_id)
         """)
-        print(f"Database initialised at {DB_PATH}")
+        # Database initialised at {DB_PATH}
 
 
 # Signal weights — tune these as you learn more about your users
