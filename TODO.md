@@ -35,7 +35,7 @@ Notebook 02 gate: identify the alpha with the lowest bar in the final bar chart.
 
 ---
 
-## Phase ML-5 — FastAPI Endpoints
+## Phase ML-5 — FastAPI Endpoints (Completed)
 
 **Goal:** Expose the LinUCB model over HTTP with two endpoints: `/rank` and `/reward`.
 
