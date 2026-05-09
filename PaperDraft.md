@@ -2,7 +2,7 @@
 
 **NIYIBIZI Prince**
 Department of Computer Science, Taizhou University
-niyibizi@[university email]
+princeniyibizi4@gmail.com
 
 ---
 
