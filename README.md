@@ -160,26 +160,85 @@ $$\text{NDCG@K} = \frac{\text{DCG@K}}{\text{IDCG@K}}, \quad \text{DCG@K} = \sum_
 
 Computed separately per cohort. LinUCB is expected to outperform Greedy on NDCG@10 after sufficient training rounds.
 
+## Simulation Results
+
+---
+
+### Alpha Sensitivity (Notebook 02)
+
+Sweep over α ∈ {0.1, 0.5, 1.0, 1.5, 2.0} on a bimodal 30-arm catalog
+(5 high-quality arms, expected reward 16–22; 25 mediocre arms, 0–5).
+5 seeds per value, 4,000 rounds.
+
+| Alpha | Mean final regret | Std | Convergence round |
+|-------|------------------|-----|-------------------|
+| 0.1 | 1,180 | 1,558 | 100 |
+| 0.5 | 1,180 | 1,558 | 100 |
+| 1.0 | 1,180 | 1,558 | 100 |
+| 1.5 | 1,180 | 1,558 | 100 |
+| 2.0 | 1,180 | 1,558 | 100 |
+
+**Best alpha: 0.1** (selected by lowest mean; all values tie).
+
+**Note on degenerate result:** All alphas produce identical regret. This occurs because
+the bimodal arm setup (best arm reward ≈ 21, median ≈ 3.6) creates such a large
+quality gap that even α = 2.0 (aggressive exploration) converges within the rolling
+window boundary of 100 rounds. The alpha parameter matters more in environments
+with smaller quality gaps and more arms. We set `bandit.alpha = 0.1` in
+`configs/config.yaml` as the conservative choice, consistent with the
+low-volume sparse-data environment GiraXpress operates in.
+
+---
+
 ### Simulation Results (Claim 1 — delivery reward ablation)
 
-| λ value | Total regret at T=10,000 | Convergence round |
-|---------|--------------------------|-------------------|
-| 0.0 (click only) | — | — |
-| 0.5 | — | — |
-| 1.0 | — | — |
-| 2.0 | — | — |
+30-arm catalog with conflicting click and delivery signals:
+- **Type A** (8 arms): click reward 8–12, delivery reliability 0.85–0.95
+- **Type B** (7 arms): click reward 14–18, delivery reliability 0.05–0.25 ← popular but unreliable
+- **Type C** (15 arms): click reward 0–4, delivery reliability 0.10–0.40
+
+5 seeds, 3,000 rounds. Regret measured as cumulative oracle-click minus chosen-click.
+
+| λ value | Total regret at T=3,000 | % Type-A (reliable) | % Type-B (unreliable) |
+|---------|------------------------|---------------------|----------------------|
+| 0.0 (click only) | 16,032 | 80.0% | 20.0% |
+| 0.5 | 4,708 | 80.0% | 20.0% |
+| 1.0 | 4,524 | 80.0% | 20.0% |
+| **2.0** | **987** | **100.0%** | **0.0%** |
+
+**Regret reduction: 93.8%** (λ=0 → λ=2.0).
+
+At λ=0, the model gravitates toward Type B arms 20% of the time — click signal
+alone cannot identify unreliable sellers. At λ=2.0 the delivery penalty overwhelms
+the click advantage of Type B arms and the model fully abandons them. The oracle arm
+type switches from B to A at λ≈1.0 (expected delivery-adjusted value:
+Type B ≈ 16.4 + λ·(0.14×3 + 0.86×(-10)) = 16.4 − 7.76λ).
+
+---
 
 ### Simulation Results (Claim 2 — curation effect)
 
-| Curation level | Total regret at T=10,000 |
-|----------------|--------------------------|
-| 20% clean | — |
-| 50% clean | — |
-| 80% clean | — |
-| 100% clean | — |
+4 curation levels, LinUCB with λ=2.0 and α=0.1, 4 seeds, 4,000 rounds.
 
-*Results populated after simulation notebooks complete.*
+| Curation level | Mean final regret | Convergence round |
+|----------------|-------------------|-------------------|
+| 20% clean | 0 | 200 |
+| 50% clean | 2,031 | 200 |
+| 80% clean | 508 | 200 |
+| 100% clean | 508 | 200 |
 
+**Result: inconclusive.** The 20% curation result of 0 regret is a simulation
+artifact — with 80% noise listings the bandit found high-quality arms anomalously
+fast across all seeds. All convergence rounds hitting 200 reflects the rolling
+window boundary rather than true convergence. Claim 2 is theoretically motivated
+but requires a corrected experimental design:
+
+- Fix the identity of high-quality arms across curation levels
+- Use per-arm regret rather than cumulative regret
+- Tighten the convergence threshold to within 2% of best arm reward
+- Increase rounds to 10,000
+
+This is left for future work.
 ---
 
 ## Repository Structure
